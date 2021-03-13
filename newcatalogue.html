@@ -1,0 +1,350 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Catalogue</title>
+    <link rel="icon" type="image/png" href="img/icon.png">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- fonts -->
+    <link rel="stylesheet" href="fonts/style.css">
+
+    <script type="text/javascript" src="js/myjs.js">
+    </script>
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <script src="https://kit.fontawesome.com/a926cf1f2c.js" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation" id="navbar">
+        <div class="container">
+
+            <div class="collapse navbar-collapse">
+
+                <ul class="nav navbar-nav navbar-left">
+                    <input type="checkbox" href="#" class="menu-open" name="menu-open" id="menu-open" />
+
+                    <li> <a href="index.html"> tantalum </a> </li>
+                </ul>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <div class="wrap">
+                        <div class="search">
+                            <input type="text" class="searchTerm" id="searchid" placeholder="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;What are you looking for?">
+                            <button onclick="loadSearchProducts()" type="submit" class="searchButton">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <li> <a href="help.html"><i class="far fa-question-circle"></i>Help </a> </li>
+                    <li> <a href="cart.html"><i class="fas fa-shopping-bag"></i>Cart</a> </li>
+                    <li> <a href="sign_in.html"><i class="fas fa-user"></i>Sign In</a> </li>
+                    <li> <a href="settings.html"><i class="fas fa-user-cog"></i> Settings</a> </li>
+                    <li> <a onclick="PriceDesc()">Descending</a> </li>
+                    <li> <a onclick="PriceAsc()">Ascending</a> </li>
+
+                </ul>
+
+
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </div>
+
+    <div id="myCarousel" class="carousel slide" data-ride="carousel">
+        <!-- Indicators -->
+        <ol class="carousel-indicators">
+            <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+            <li data-target="#myCarousel" data-slide-to="1"></li>
+            <li data-target="#myCarousel" data-slide-to="2"></li>
+        </ol>
+
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner">
+            <div class="item active">
+                <img src="img\banner_01.png" alt="Banner 01">
+            </div>
+
+            <div class="item">
+                <img src="img\banner_02.jpg" alt="Banner 02">
+            </div>
+
+            <div class="item">
+                <img src="img\banner_03.jpg" alt="Banner 03">
+            </div>
+        </div>
+    </div>
+    <div id=products></div>
+    <div id=SearchResponse></div>
+    <div id=searchproduct></div>
+    <div id=sproducts></div>
+    <script>
+
+        
+        
+        window.onload = loadProducts; //when page loads , call function loadProducts()
+        let prodArray; // global variable prodArray
+        //Downloads JSON description of products from server
+        function loadProducts() {
+            //Create request object 
+            let request = new XMLHttpRequest();
+
+            //Create event handler that specifies what should happen when server responds
+            request.onload = () => {
+                //Check HTTP status code
+                if (request.status === 200) {
+                    
+                    displayProducts(request.responseText); // if connection is successful , call function displayProducts ,takes data from server , php products.php
+                }
+                else
+                    alert("Error communicating with server: " + request.status); // if not , display appropriate error msg
+            };
+
+            //Set up request and send it
+            request.open("GET", "products.php");
+            request.send(); 
+        }
+
+        //Loads products into page,takes as parameter json format data from server
+        function displayProducts(jsonProducts) {
+            //Convert JSON to array of product objects
+            prodArray = JSON.parse(jsonProducts);
+
+            //Create HTML page containing product data
+            let htmlStr = "<div>";
+            let j = 1
+            //read through array of products
+            for (let i = 0; i < prodArray.length; ++i) {
+
+
+                if (j == 1) {
+
+                    htmlStr += '<div class="row">';
+
+                }
+
+
+                htmlStr += '<div class="col-md-4"> <div class="thumbnail">';
+                htmlStr += "<img src='" + prodArray[i].image_url + "'>";
+                htmlStr += "<br>"
+                htmlStr += "<p>" + prodArray[i].Description + "</p>";
+                htmlStr += "<hr>"
+                htmlStr += '<button onclick="addToBasket(\''+prodArray[i]._id.$oid+'\',\''+prodArray[i].image_url+'\',\''+prodArray[i].ProductName+'\',\''+prodArray[i].Price+'\')" type="button" class="btn btn-light"><i class="fas fa-cart-arrow-down mr-3"></i>Add to cart </button>'
+                htmlStr += "<p> Price : " + prodArray[i].Price + "$</p>";
+                htmlStr += '</a>'
+                htmlStr += '</div>'
+                htmlStr += '</div>'
+
+                j++
+                if (j > 3) {
+                    j = 1
+                    htmlStr += '</div>'
+                }
+            }
+            //Finish off table and add to document
+            htmlStr += "</div>";
+            document.getElementById("searchproduct").innerHTML = htmlStr;
+        }
+
+
+
+        function loadSearchProducts() {
+            //Create request object 
+            let request = new XMLHttpRequest();
+
+            //Create event handler that specifies what should happen when server responds
+            request.onload = () => {
+                //Check HTTP status code
+                if (request.status === 200) {
+                    //Get data from server
+                    let responseData = request.responseText;
+
+                    displayProducts(responseData); //response from server which contains result for appropriate keywords
+
+                    //Add data to page
+
+                }
+                else
+                    alert("Error communicating with server: " + request.status);
+            };
+
+            //Set up request with HTTP method and URL 
+            request.open("POST", "search.php");
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            //Extract search data
+            let usrSearch = document.getElementById("searchid").value;
+            //Send request
+            request.send("keywords=" + usrSearch);
+        }
+        //perform bubble sort in desc
+        function PriceDesc() {
+            let needsort = true;
+            for (let i = 1; i < prodArray.length && needsort; i++) {
+                needsort = false;
+                for (let j = 0; j < prodArray.length - 1; j++) {
+                    if (parseInt(prodArray[j].Price) < parseInt(prodArray[j + 1].Price)) {
+                        let temp = prodArray[j + 1];
+                        prodArray[j + 1] = prodArray[j];
+                        prodArray[j] = temp;
+                        needsort = true;
+                    }
+
+                }
+            }
+            displayProducts(JSON.stringify(prodArray));
+        }
+        //perfom sort in asc
+        function PriceAsc() {
+            let needsort = true;
+            for (let i = 1; i < prodArray.length && needsort; i++) {
+                needsort = false;
+                for (let j = 0; j < prodArray.length - 1; j++) {
+                    if (parseInt(prodArray[j].Price) > parseInt(prodArray[j + 1].Price)) {
+                        let temp = prodArray[j + 1];
+                        prodArray[j + 1] = prodArray[j];
+                        prodArray[j] = temp;
+                        needsort = true;
+                    }
+
+                }
+            }
+            displayProducts(JSON.stringify(prodArray)); //display sorted data
+        }
+        //when use click add to basket , call addToBasket , populate sessionstorage
+        function addToBasket(prodID,prodImg,prodName,prodPrice){
+
+            let basket= getBasket();
+            //insert to local storage
+            basket.push({id: prodID,image_url: prodImg,ProductName :prodName,Price:prodPrice});
+
+            sessionStorage.basket= JSON.stringify(basket);
+
+
+
+          
+
+        }
+        // if session already created , add to session , else , create session then push to session
+
+        function getBasket(){
+            let basket;
+            if((sessionStorage.basket===undefined) || (sessionStorage.basket===" ")){
+                basket=[];
+
+            }
+            else{
+                basket=JSON.parse(sessionStorage.basket);
+            }
+           
+            return basket;
+        }
+
+
+
+
+
+
+    </script>
+
+
+    <footer class="text-center">
+        <div class="container">
+
+            <div class="details row">
+                <div class="price pull-left">
+                    <img src="img/tag.png" alt="">
+                    <p>lowest price guaranteed</p>
+                </div>
+
+                <div class="msg pull-right">
+                    <img src="img/msg.png" alt="">
+                    <a href="help.html">
+                        <p>drop a message</p>
+                    </a href="help.html">
+                </div>
+
+            </div>
+
+            <div class="details-2 row">
+                <div class="col-sm-3 col-xs-6 item">
+                    <div class="img">
+                        <img src="img/aeroplane.svg" alt="">
+                    </div>
+                    <p>Global Shipping</p>
+                </div>
+
+                <div class="col-sm-3 col-xs-6 item">
+                    <div class="img">
+                        <img src="img/favorites-button.svg" alt="">
+                    </div>
+                    <p>Prime Privileges</p>
+                </div>
+
+                <div class="col-sm-3 col-xs-6 item">
+                    <div class="img">
+                        <img src="img/smartphone.svg" alt="">
+                    </div>
+                    <p>Purchase & Win Airtime</p>
+                </div>
+
+                <div class="col-sm-3 col-xs-6 item">
+                    <div class="img">
+                        <img src="img/go.svg" alt="">
+                    </div>
+                    <p>Shop on any Device</p>
+                </div>
+
+            </div>
+
+            <div class="desc row">
+                <div class="col-sm-6 col-xs-12">
+                    <h3>Why choose us?</h3>
+                    <p>Guaranteed delivery in 48hrs.</p>
+                    <p>Value for money.</p>
+
+                </div>
+                <div class="col-sm-6 col-xs-12">
+                    <h3>payment methods</h3>
+                    <div class="imgs">
+                        <img src="img/paypal.png" alt="">
+                        <img src="img/mastercard.png" alt="">
+                    </div>
+
+                </div>
+
+                <div class="site-info row clearfix"></div>
+                <div class="pull-right">
+                    <p>Tantalum &copy; </p>
+                </div>
+                <div class="pull-left">
+                    <a href="cms/index.html">
+                        <p>Click here for staff access</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+
+
+
+</body>
+
+</html>

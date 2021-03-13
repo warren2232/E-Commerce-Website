@@ -1,0 +1,207 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>User Settings</title>
+    <link rel="icon" type="image/png" href="img/icon.png">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- fonts -->
+    <link rel="stylesheet" href="fonts/style.css">
+
+    <script type="text/javascript" src="js/myjs.js">
+    </script>
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <script src="https://kit.fontawesome.com/a926cf1f2c.js" crossorigin="anonymous"></script>
+
+</head>
+
+<body id="log-in" class="text-center">
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation" id="navbar">
+        <div class="container">
+
+            <div class="collapse navbar-collapse">
+
+                <ul class="nav navbar-nav navbar-left">
+                    <input type="checkbox" href="#" class="menu-open" name="menu-open" id="menu-open" />
+
+                    <li> <a href="index.html"> tantalum </a> </li>
+                </ul>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li> <a href="help.html"><i class="far fa-question-circle"></i>Help </a> </li>
+                    <li> <a href="cart.html"><i class="fas fa-shopping-bag"></i>Cart</a> </li>
+                    <li> <a href="sign_in.html"><i class="fas fa-user"></i>Sign In</a> </li>
+                    <li> <a href="#"><i class="fas fa-user-cog"></i> Settings</a> </li>
+                </ul>
+
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </div>
+    <div id="customers"></div>
+    <script>
+         
+                //Download products when page loads
+                window.onload = settings;
+    
+                //Downloads JSON description of products from server
+                function settings() {
+                    //Create request object 
+                    let request = new XMLHttpRequest();
+    
+                    //Create event handler that specifies what should happen when server responds
+                    request.onload = () => {
+                        //Check HTTP status code
+                        if (request.status === 200) {
+                            //Add data from server to page
+                            displayProducts(request.responseText);
+                        }
+                        else
+                            alert("Error communicating with server: " + request.status);
+                    };
+    
+                    //Set up request and send it
+                    request.open("GET", "settings.php");
+                    request.send();
+                }
+    
+    
+    
+            
+    
+            function displayProducts(jsonProducts) {
+                //Convert JSON to array of product objects
+                let obj = JSON.parse(jsonProducts);
+                for(let i=0; i<obj.length; ++i){
+                  
+    
+                //Create HTML table containing product data
+                let htmlStr = "<div>";
+                htmlStr += '<div class="form">';
+                htmlStr += '<div class="img">';
+             
+            
+    
+                htmlStr += "</div>";
+               
+                htmlStr += '<div id="userSettings">';
+                htmlStr += '<h2>User Settings</h2>'
+                htmlStr += "<hr>"
+                htmlStr += '<form>'
+
+               
+                htmlStr += '<div class="form-group col-md-6"><label for="inputEmail">Email</label>';
+                htmlStr += '<input type="text" class="form-control" value='+obj[i].Email+' id="inputEmail" placeholder="new email here">';
+                
+             
+                htmlStr += '</div>';
+                htmlStr += '<div class="form-group col-md-6">'
+                htmlStr += '<label for="inputPassword4">Password</label>'
+                htmlStr += '<input type="password" class="form-control"value='+obj[i].Password+' id="inputPassword" placeholder="new password here">'
+                htmlStr += '</div>'
+                htmlStr += '<div class="form-group" id="spaceSettings">'
+                htmlStr += '<label for="inputAddress">Street Address</label>'
+                htmlStr += '<input type="text"value='+obj[i].Address+' class="form-control" id="inputAddress" placeholder="address here">'
+                htmlStr += '</div>'
+           
+                htmlStr += '<div class="form-group col-md-6">'
+                htmlStr += '<label for="inputCity">Country</label>'
+                htmlStr += '<input type="text"value='+obj[i].Country+' class="form-control" id="inputCountry" placeholder="country here">'
+                htmlStr += '</div>'
+    
+            
+                htmlStr += '<div class="form-group col-md-6">'
+                        htmlStr += '<label for="inputAddress2">Phone Number</label>'
+                htmlStr += '<input type="text" class="form-control" value='+obj[i].Phone+' id="phoneNumber" placeholder="phone number here">'
+                htmlStr += '</div>'
+    
+                htmlStr += '<button onclick="performupdate()" type="button" class="btn btn-light">Save changes</button>'
+                htmlStr += '</form>'
+                htmlStr += "</div>";
+                htmlStr +='<div id=ServerResponse></div>'
+                document.getElementById("customers").innerHTML = htmlStr;
+                }
+            }
+
+               function performupdate(){
+                   
+       
+                       //Create request object 
+                       let request = new XMLHttpRequest();
+
+                       //Create event handler that specifies what should happen when server responds
+                       request.onload = () => {
+                           //Check HTTP status code
+                           if (request.status === 200) {
+                               //Get data from server
+                               let responseData = request.responseText;
+
+                               //Add data to page
+                               document.getElementById("ServerResponse").innerHTML = responseData;
+                           }
+                           else
+                               alert("Error communicating with server: " + request.status);
+                       };
+
+                       //Set up request with HTTP method and URL 
+                       request.open("POST", "performupdate.php");
+                       request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+                       //Extract registration data
+                       let usrPassword = document.getElementById("inputPassword").value;
+
+                       let usrAddress = document.getElementById("inputAddress").value;
+
+                       let usrCountry = document.getElementById("inputCountry").value;
+                       let usrEmail = document.getElementById("inputEmail").value;
+                       let usrPhone = document.getElementById("phoneNumber").value;
+
+
+
+                       //Send request
+                       request.send("Email=" + usrEmail + "&Password=" + usrPassword + "&Address=" + usrAddress + "&Country=" + usrCountry + "&Phone=" + usrPhone);
+                   }
+
+                
+                
+    
+    
+    
+    
+    
+                
+              
+                
+            
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        </script>
+
+    
+</body>

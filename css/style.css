@@ -1,0 +1,82 @@
+
+
+/* Create three equal columns that floats next to each other */
+.media {
+    float: left;
+    
+}
+.media-body {
+    
+    flex: 1;
+    position: relative;
+    top: -59px;
+}
+
+
+
+.media img {
+    height: 751px;
+    width: 718px;
+}
+
+  
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+.column h1{
+    
+    text-align:center;
+   
+    
+}
+.media-body h1{
+    font-family:'Segoe UI Bold';
+    
+}
+.specs h1 {
+    margin-top: 40%;
+}
+.description {
+    position: relative;
+    bottom: -230px;
+    height: 300px;
+    left: 182px;
+    
+    width: 500px;
+}
+.description h1{
+    font-size:45px;
+    
+}
+#exit {
+    position: relative;
+    bottom: -136px;
+    left: -165px;
+}
+#buy {
+    position: relative;
+    height: 25px;
+    width: 64px;
+    padding-right: 23px;
+}
+#price{
+    font-weight:200;
+    font-size:35px;
+    
+}
+.w-fit{
+    width: fit-content;
+}
+.check {
+    position: relative;
+    top: 18px;
+}
+
+#no-scroll {
+    overflow: hidden;
+}
+
